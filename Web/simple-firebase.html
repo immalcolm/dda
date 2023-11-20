@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Firebase</title>
+    <!-- Include Firebase JavaScript SDK -->
+    <script type="module">
+        //@TODO Read
+        //this file is for storing the firebase config
+        //it has been gitignored, meaning it wont show up in github
+        import { FIREBASE_CONFIG } from './config.js';
+
+        //we are running the code in module mode
+        //this taps on the CDN version of the firebase SDK
+        //for firebase app
+        import {
+            //determine which services you want to use
+            initializeApp
+        } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js';
+
+        //for realtime database
+        import {
+            //determine which services you want to use
+            getDatabase, ref, set, get, onValue, push, child, update, remove
+        } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js';
+
+          //for auth
+          import {
+            //determine which services you want to use
+            getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut
+        } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js';
+
+        //Your web app's Firebase configuration
+        //this can be retrieved from your project settings 
+        //in this demo, we store it securely in a config.js file
+        /*
+        const firebaseConfig = {
+            apiKey: "",
+            authDomain: "",
+            databaseURL: "",
+            projectId: "",
+            storageBucket: "",
+            messagingSenderId: "",
+            appId: ""
+        };
+        */
+
+        // Initialize Firebase
+        const app = initializeApp(FIREBASE_CONFIG);
+
+        //get a reference to the database service
+        const db = getDatabase();
+        const playerRef = ref(db, "players");
+
+        //get data from firebase "players"
+        getPlayerData();
+
+        //get data from firebase "players"
+        function getPlayerData() {
+            //const playerRef = ref(db, "players");
+            //PlayerRef is declared at the top using a constant
+            //get(child(db,`players/`))
+            get(playerRef)
+                .then((snapshot) => {//retrieve a snapshot of the data using a callback
+                    if (snapshot.exists()) {//if the data exist
+                        try {
+                            //let's do something about it
+                            var content = "";
+                            let playerDataTable = document.getElementById("player-data");
+                            let playerData = "";
+                            snapshot.forEach((childSnapshot) => {//looping through each snapshot
+                                //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+                                console.log("GetPlayerData: childkey " + childSnapshot.key);
+                                
+                                //@TODO retrieve player info based on the attributes given
+                                //playerData += childSnapshot.val();
+                            });
+                            playerDataTable.innerHTML = playerdata;
+                        } catch (error) {
+                            console.log("Error getPlayerData" + error);
+                        }
+                    } else {
+                        console.log("No data available");
+                    }
+                });
+        }//end getPlayerData
+
+        //@TODO using the remove feature, delete a certain player based on the player name
+        function removePlayerByName(){
+
+        }
+
+        //@TODO using the remove feature, delete a certain player by the key id
+        //Refresh the data 
+        function removePlayerByKey(){
+
+        }
+
+        //Working with Auth
+        const auth = getAuth();
+        
+        //retrieve element from form
+        let btnCreateUser = document.getElementById("create-user");
+        //we create a button listener to listen when someone clicks 
+        btnCreateUser.addEventListener("click", function (e) {
+            e.preventDefault();
+            //@TODO: do error handling for email n password
+            let email = document.getElementById("email").value;
+            let password = document.getElementById("password").value;
+            
+            //call the function to create a new user
+            createUser(email, password);
+            console.log("email" + email + "password" + password);
+        });
+
+        let btnSignInUser = document.getElementById("sign-in-user");
+        btnSignInUser.addEventListener("click", function (e) {
+            e.preventDefault();
+            //@TODO: do error handling for email n password
+            let email = document.getElementById("email").value;
+            let password = document.getElementById("password").value;
+            
+            //call the function to create a new user
+            loginUser(email, password);
+            console.log("email" + email + "password" + password);
+        });
+
+        let btnSignOutUser = document.getElementById("sign-out-user");
+        btnSignOutUser.addEventListener("click",function (e){
+            e.preventDefault();
+
+            signoutUser();
+        });
+
+        //create a new user based on email n password into Auth service
+        //user will get signed in
+        //userCredential is an object that gets
+        function createUser(email, password) {
+            console.log("creating the user");
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    //signedin
+                    const user = userCredential.user;
+                    console.log(`User ID: ${user.uid} is created and signed in`);
+                    console.log(`Full User Details\n ${JSON.stringify(userCredential)}`);
+                    btnSignOutUser.style.display("block");
+
+                    let message = document.getElementById("message");
+                    message.innerHTML = `User ID: ${user.uid} is created and signed in`;
+                }).catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    console.log(`ErrorCode: ${errorCode} -> Message: ${errorMessage}`);
+
+                    let message = document.getElementById("message");
+                    message.innerHTML = `ErrorCode: ${errorCode} -> Message: ${errorMessage}`;
+                });
+        }//end createUser
+
+        function loginUser(email, password){
+            signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                btnSignOutUser.style.display("block");
+                // Signed in
+                const user = userCredential.user;
+                console.log(`User ID: ${user.uid} is now signed in`);
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.log(`ErrorCode: ${errorCode} -> Message: ${errorMessage}`);
+            });
+        }
+
+        function signoutUser(){
+            //@TODO
+            console.log(`User is now signed out`);
+
+            //hide the sign out button 
+            btnSignOutUser.style.display("none");
+        }
+    </script>
+</head>
+<body>
+    <form id="frm-firebase">
+        <input type="text" id="email" placeholder="email" required>
+        <input type="password" id="password" placeholder="password" required>
+        <input type="submit" value="Create User" id="create-user">
+        <input type="submit" value="Login" id="sign-in-user">
+    </form>
+    <div id="message" style="font-size: smaller;"></div>
+
+    <table>
+        <thead>
+            <th>ID</th>
+            <th>Name</th>
+        </thead>
+        <tbody id="player-data">
+            
+        </tbody>
+    </table>
+
+    <!-- hide our sign out button first -->
+    <button style="display: none;" id="sign-out-user">Sign Out</button>
+</body>
+
+</html>
