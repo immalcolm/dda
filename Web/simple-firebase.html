@@ -1,9 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Firebase</title>
+    <link rel="stylesheet" href="css/table.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
     <!-- Include Firebase JavaScript SDK -->
     <script type="module">
         //@TODO Read
@@ -25,8 +32,8 @@
             getDatabase, ref, set, get, onValue, push, child, update, remove
         } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js';
 
-          //for auth
-          import {
+        //for auth
+        import {
             //determine which services you want to use
             getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut
         } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js';
@@ -68,15 +75,24 @@
                             //let's do something about it
                             var content = "";
                             let playerDataTable = document.getElementById("player-data");
+                            playerDataTable.innerHTML = "";
+
                             let playerData = "";
                             snapshot.forEach((childSnapshot) => {//looping through each snapshot
                                 //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
                                 console.log("GetPlayerData: childkey " + childSnapshot.key);
-                                
+
                                 //@TODO retrieve player info based on the attributes given
-                                //playerData += childSnapshot.val();
+                                let player = childSnapshot.val();
+
+                                playerData += `<tr>
+                                    <td>${childSnapshot.key}</td>
+                                    <td>${player.playerName}</td>
+                                    <td>${player.level}</td>
+                                    <td>${player.health}</td>
+                                    </tr>`;
                             });
-                            playerDataTable.innerHTML = playerdata;
+                            playerDataTable.innerHTML = playerData;
                         } catch (error) {
                             console.log("Error getPlayerData" + error);
                         }
@@ -87,19 +103,19 @@
         }//end getPlayerData
 
         //@TODO using the remove feature, delete a certain player based on the player name
-        function removePlayerByName(){
+        function removePlayerByName() {
 
         }
 
         //@TODO using the remove feature, delete a certain player by the key id
         //Refresh the data 
-        function removePlayerByKey(){
+        function removePlayerByKey() {
 
         }
 
         //Working with Auth
         const auth = getAuth();
-        
+
         //retrieve element from form
         let btnCreateUser = document.getElementById("create-user");
         //we create a button listener to listen when someone clicks 
@@ -108,7 +124,7 @@
             //@TODO: do error handling for email n password
             let email = document.getElementById("email").value;
             let password = document.getElementById("password").value;
-            
+
             //call the function to create a new user
             createUser(email, password);
             console.log("email" + email + "password" + password);
@@ -120,19 +136,20 @@
             //@TODO: do error handling for email n password
             let email = document.getElementById("email").value;
             let password = document.getElementById("password").value;
-            
+
             //call the function to create a new user
             loginUser(email, password);
             console.log("email" + email + "password" + password);
         });
 
         let btnSignOutUser = document.getElementById("sign-out-user");
-        btnSignOutUser.addEventListener("click",function (e){
+        btnSignOutUser.addEventListener("click", function (e) {
             e.preventDefault();
 
             signoutUser();
         });
 
+        let message = document.getElementById("message");
         //create a new user based on email n password into Auth service
         //user will get signed in
         //userCredential is an object that gets
@@ -144,9 +161,9 @@
                     const user = userCredential.user;
                     console.log(`User ID: ${user.uid} is created and signed in`);
                     console.log(`Full User Details\n ${JSON.stringify(userCredential)}`);
-                    btnSignOutUser.style.display("block");
+                    btnSignOutUser.style.display = "block";
 
-                    let message = document.getElementById("message");
+                    message = document.getElementById("message");
                     message.innerHTML = `User ID: ${user.uid} is created and signed in`;
                 }).catch((error) => {
                     const errorCode = error.code;
@@ -158,51 +175,128 @@
                 });
         }//end createUser
 
-        function loginUser(email, password){
+        function loginUser(email, password) {
             signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                btnSignOutUser.style.display("block");
-                // Signed in
-                const user = userCredential.user;
-                console.log(`User ID: ${user.uid} is now signed in`);
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.log(`ErrorCode: ${errorCode} -> Message: ${errorMessage}`);
-            });
+                .then((userCredential) => {
+                    btnSignOutUser.style.display = "block";
+                    // Signed in
+                    const user = userCredential.user;
+                    console.log(`User ID: ${user.uid} is now signed in`);
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    console.log(`ErrorCode: ${errorCode} -> Message: ${errorMessage}`);
+                });
         }
 
-        function signoutUser(){
+        function signoutUser() {
             //@TODO
             console.log(`User is now signed out`);
-
+            message.innerHTML = `User is now signed out`;
             //hide the sign out button 
-            btnSignOutUser.style.display("none");
+            btnSignOutUser.style.display = "none";
+
+        }
+
+
+        //Create a player
+        let btnCreatePlayer = document.getElementById("create-player");
+        btnCreatePlayer.addEventListener("click", function (e) {
+            e.preventDefault();
+            //get input values
+            let username = document.getElementById("username").value;
+            let level = document.getElementById("level").value;
+            let health = document.getElementById("health").value;
+            //call the function to create a new player
+            createPlayer(username, level, health);
+        });
+
+        function createPlayer(username, level, health) {
+            //create a new player object
+            let player = {
+                playerName: username,
+                level: level,
+                health: health
+            };
+            //push the player object into the database
+            push(playerRef, player)
+                .then((snapshot) => {
+                    console.log("Player is created");
+                    console.log(snapshot);
+                    //refresh the data
+                    getPlayerData();
+                })
+                .catch((error) => {
+                    console.log("Error creating player" + error);
+                });
         }
     </script>
 </head>
+
 <body>
-    <form id="frm-firebase">
-        <input type="text" id="email" placeholder="email" required>
-        <input type="password" id="password" placeholder="password" required>
-        <input type="submit" value="Create User" id="create-user">
-        <input type="submit" value="Login" id="sign-in-user">
-    </form>
-    <div id="message" style="font-size: smaller;"></div>
+    <div class="container shadow-sm rounded p-4 pb-4">
+        <h2>Create a new User (Auth)</h2>
+        <form id="frm-firebase">
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" type="text" placeholder="What's your Email" id="email"
+                    required>
+                <label for="email">Email address</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" id="password" placeholder="Password Pls" class="form-control" required>
+                <label for="password">Password pls</label>
+            </div>
+            <input type="submit" value="Create User" id="create-user" class="btn btn-primary">
+            <input type="submit" value="Login" id="sign-in-user" class="btn btn-primary">
+        </form>
+        <!-- hide our sign out button first -->
+        <button style="display: none;" id="sign-out-user" class="btn btn-primary">Sign Out</button>
+        <div id="message" style="display:none;" class="alert alert-primary"></div>
+    </div>
+    </div>
 
-    <table>
-        <thead>
-            <th>ID</th>
-            <th>Name</th>
-        </thead>
-        <tbody id="player-data">
-            
-        </tbody>
-    </table>
+    <hr />
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-6">
+                <h2>Players (Realtime DB)</h2>
+                <table class="styled-table ">
+                    <thead>
+                        <th>ID</th>
+                        <th>Level</th>
+                        <th>Name</th>
+                        <th>Health</th>
+                    </thead>
+                    <tbody id="player-data">
 
-    <!-- hide our sign out button first -->
-    <button style="display: none;" id="sign-out-user">Sign Out</button>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-6">
+                <h3>Create Player</h3>
+                <form id="frm-player">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" type="text" placeholder="User Name" id="username"
+                            required>
+                        <label for="username">Username</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" class="form-control" type="text" placeholder="Level" id="level" required>
+                        <label for="level">Level</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" type="text" placeholder="Player Health" id="health"
+                            required>
+                        <label for="health">Health</label>
+                    </div>
+
+                    <input type="submit" value="Create Player" id="create-player" class="btn btn-success">
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
+

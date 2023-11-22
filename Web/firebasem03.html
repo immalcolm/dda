@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDM_pbYR8w-enOEBOsduBHkYqv_ZlWNOWw",
+            authDomain: "dda-project-test-1.firebaseapp.com",
+            databaseURL: "https://dda-project-test-1-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "dda-project-test-1",
+            storageBucket: "dda-project-test-1.appspot.com",
+            messagingSenderId: "597243584304",
+            appId: "1:597243584304:web:46fc8bc1a3002389c232f5"
+        };
+
+        //import database 
+        import { getDatabase, ref, set, get, onValue, push, child, update, remove } from
+            "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+
+        //import auth
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from
+            "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        //initialize database
+        const db = getDatabase();
+        //player reference 
+        const playerRef = ref(db, "players");//C# DatabaseReference.GetReference("players");
+        //get the auth
+        const auth = getAuth();
+
+        //start logic here
+        //get the player data from playerRef using get
+        function getPlayerData() {
+            //get the player data using get
+            get(playerRef)  //get the values from player ref
+                .then((snapshot) => {//retrieve a snapshot of the data using a callback
+                    if (snapshot.exists()) {//if the data exist
+                        try {
+                            //let's do something about it
+                            let content = "";
+                            
+                            snapshot.forEach((childSnapshot) => {//looping through each snapshot
+                                //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+                                console.log("GetPlayerData: childkey " + childSnapshot.key);
+                                console.log("Get player value" + childSnapshot.val());
+                                content += `<tr>
+                                    <td>${childSnapshot.key}</td>
+                                    <td>${childSnapshot.val().playerName}</td>
+                                    <td>${childSnapshot.val().level}</td>
+                                    </tr>`;
+                            });
+                            let table = document.getElementById("table-data");
+                            table.innerHTML = content;
+                        } catch (error) {
+                            console.log("Error getPlayerData" + error);
+                        }
+                    }else{
+                        //@TODO do something about it 
+                    }
+                });
+
+        }
+
+        getPlayerData();
+
+        function createUser(){
+
+        }
+
+
+    </script>
+</head>
+
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Level</th>
+            </tr>
+        </thead>
+        <tbody id="table-data">
+
+        </tbody>
+    </table>
+</body>
+
+</html>

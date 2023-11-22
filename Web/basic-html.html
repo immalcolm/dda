@@ -3,63 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>This is a title at the tab</title>
+
+    <!-- insert java script here-->
+    <script>
+        var name = "John";
+        //preferred way is to use let
+        let studentName = "Wee Kiat";
+        const classSize = 20;
+
+        let aArray = [1,2,3,4,5,"jsidofsjiof",7,8,9,10];
+
+        console.log("Hello World");
+
+        for(let i = 0; i < aArray.length; i++){
+            console.log(aArray[i]);
+        }
+
+        //literal object
+        //works like a key:value pair
+
+        let minabae = {
+            "name": "minabae",
+            "level": 39203
+        }
+        console.log("minabae's level is " + minabae.level);
+
+        //function based object
+        function Player(level, name){
+            this.level = level;
+            this.name = name;
+        }
+        //our player object
+        let aPlayer =new Player(1, "daron");
+        console.log("player" + aPlayer.name +
+         " is level " + aPlayer.level);
+
+        /* Player C# 
+        public class Player{
+            public int level;
+            public string name;
+
+            public Player(int level, string name){
+                this.level = level;
+                this.name = name;
+            }
+        }
+        Player temp = new Player(1, "some name");
+        */
+        
+    </script>
+    
     <style>
         *{
+            margin: 0;
+            padding: 0;
             font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
         }
 
-        h1{
-            color: red;
+        h1,h2,h3,h4,h5,h6{
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
         }
+        p{font-size: 1.2em;}
+
+        /* we can reuse classes or stack them */
         .red{
-            color: red;
+            color:red;
         }
-        .font-big{
-            font-size: larger;
+        .font-bigger{
+            font-size:2em;
         }
-        #login{
-            background-color: green;
-            color: white;
+
+        #player-data{
+            margin:5px;
+            border-radius: 5px;
+            padding: 5px;
+            border: 1px solid black;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);
         }
+
+        a:hover{
+            color: red;}
     </style>
+
+    <!-- scripts and css . hidden from user -->
 </head>
 <body>
-    <h1>DDA clas</h1>
-    <h6>dda minor class</h6>
-
-    <p class="red font-big">lorem ipsum</p>
-    <div class="red">this is just block</div>
-    <ol>
-        <li>this is a list item</li>
-    </ol>
-    <ul>
-        <li>this is unordered list</li>
-        <ul>
-            <li>this is another ul</li>
-        </ul>
-    </ul>
-
+    <a href="https://www.gogole.com">Google</a>
+    <p class="red font-bigger" id="player-data">
+        this is a paragraph
+    </p>
     <table border="1">
         <thead>
-            <th>Class</th>
-            <th>Class</th>
-            <th>Class</th>
+            <tr>
+                <th>Player Name</th>
+                <th>Level</th>
+            </tr>
         </thead>
-        <tr>
-            <td>this is a table cell</td>
-            <td>this is a table cell</td>
-            <td>this is a table cell</td>
-        </tr>
+        <tbody id="player-data">
+            <tr>
+                <td>Cell 1</td>
+                <td>Cell 2</td>
+            </tr>
+            <!-- data will be appended here -->
+        </tbody>
     </table>
-    <img src="https://picsum.photos/200/300" alt="random image" title="this is hovered text">
-    <a href="https://www.np.edu.sg" title="this is hovered link ">This is a link to SP </a>
 
-    <form id="login">
-        <input type="text" name="email" id="email" placeholder="Email">
-        <input type="password" name="password" id="password" placeholder="Password">
-        <button type="button" id="login">Login</button>
-        <button type="button" id="register">Register</button>
+    <form>
+        <label>PlayerName: </label>
+        <input type="text" id="txt-player-name" placeholder="Player Name">
+        <br/>
+        <label>Password: </label>
+        <input type="password" id="txt-player-password" placeholder="Player Password">
+        <br/>
+        <label>Email: </label>
+        <input type="email" id="txt-player-email" placeholder="Player email">
+        <button>Button</button>
+        <input type="submit" value="Submit">
     </form>
 </body>
 </html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic HTML v2</title>
+    <!-- everything that is scripted is here, hidden from the user-->
+
+    <script>
+        //declaring variables
+        var name = "John";
+        //let is the preferred way to declare variables
+        let studentName = "Wee Kiat";
+
+        //C# 
+        //string someName = "... ";
+        //JS we do not need to care about the data type
+        //JS will infer
+        let data = [398239, "Wee Kiat", "Siti", "Ali"];
+
+        for (let i = 0; i < data.length; i++) {
+            console.log(data[i]);
+        }
+
+        //literal objects
+        //minabae and momobae?
+        //key:value pairs
+        let minabae = {
+            "name": "minabae",
+            "level": 39203
+        }
+
+        function Player(playerName, level, health, maxHealth, mana, agility, timeCreated) {
+            this.playerName = playerName;
+            this.level = level;
+            this.health = health;
+            this.maxHealth = maxHealth;
+            this.mana = mana;
+            this.agility = agility;
+            this.timeCreated = timeCreated;
+        }
+        //our player object
+        let daron = new Player("daron", 1, 100, 100, 100, 100, new Date());
+        console.log(daron.agility)
+
+
+    </script>
+
+</head>
+
+<body>
+
+</body>
+
+</html>

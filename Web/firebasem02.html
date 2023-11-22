@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDM_pbYR8w-enOEBOsduBHkYqv_ZlWNOWw",
+            authDomain: "dda-project-test-1.firebaseapp.com",
+            databaseURL: "https://dda-project-test-1-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "dda-project-test-1",
+            storageBucket: "dda-project-test-1.appspot.com",
+            messagingSenderId: "597243584304",
+            appId: "1:597243584304:web:46fc8bc1a3002389c232f5"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        //get the database
+        import { getDatabase, ref, set, get, onValue, push, child, update, remove } from
+            "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+
+
+        //get the auth
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from
+            "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+
+        const db = getDatabase();
+        const auth = getAuth();
+
+        //get player data
+        //ref(<your database>, <your path>)
+        const playerRef = ref(db, "players");//similar to Unity getReference
+
+        //get the player data from playerRef using get
+        //get(<your reference>) | similar to Unity GetValueAsync
+        function getPlayerData() {
+            get(playerRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    //get a reference to the table using the id attribute
+                    let table = document.getElementById("player-data");
+                    let playerInfo = "";//empty string for the start
+                    //loop through entire snapshot
+                    //each entry is called "childSnapshot"
+                    snapshot.forEach((childSnapshot) => {
+                        //append html
+                        //childSnapshot.val() -> child data
+                        //childSnapshot.val().<your property> -> child property
+                        //ensure properties are based off your firebase database
+                        playerInfo += `<tr>
+                            <td>${childSnapshot.key}</td>
+                            <td>${childSnapshot.val().playerName}</td>
+                            <td>${childSnapshot.val().level}</td>
+                            </tr>`;
+                        console.log(childSnapshot.val());
+                    });
+                    table.innerHTML = playerInfo;
+                    
+                } else {
+                    console.log("No data available");
+                }
+            }).catch((error) => {
+                console.error(error);
+            });
+        }//end of getPlayerData
+
+        getPlayerData();
+    </script>
+</head>
+
+<body>
+    <table border="1">
+        <thead>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Level</th>
+        </thead>
+        <tbody id="player-data">
+
+        </tbody>
+    </table>
+</body>
+
+</html>
