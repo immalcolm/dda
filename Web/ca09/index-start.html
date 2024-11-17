@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- 
+    1. Import the firebase libraries
+    2. Place the firebase configuration code
+    3. Initialize the firebase app
+    4. Create a reference to the database
+    5. Create a reference to the authentication
+    -->
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+      //import the key functions that are to be used for firebase realtime db. ensure the versions are the same
+      import {
+        getDatabase,
+        ref,
+        child,
+        get,
+      } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      //@TODO: Replace the following with your app's Firebase project configuration
+      const firebaseConfig = {};
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+      //assume the reference of the database is "players". You can change this to your reference
+      const playerRef = child(dbRef, "players");
+
+      //@TODO
+      
+      function getPlayerData() {
+        //get the data from the database
+        
+      }
+
+      document
+        .getElementById("btn-get-player-data")
+        .addEventListener("click", getPlayerData);
+    </script>
+  </head>
+  <body>
+    <h1>Player Data</h1>
+    <button id="btn-get-player-data">Get Player Data</button>
+    <table>
+      <thead></thead>
+      <tbody id="player-data"></tbody>
+    </table>
+  </body>
+</html>
