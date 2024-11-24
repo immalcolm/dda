@@ -2,3 +2,6 @@
 config.js
 firebase_config.js
 index-end.html
+
+# Ignore all .zip files
+*.zip
