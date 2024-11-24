@@ -211,6 +211,12 @@
           console.error("Error fetching sorted data:", error);
         }
       }
+
+      onValue(PLAYER_REF, (snapshot) => {
+        //@TODO we can just update player content directly or call our function
+        //console.log("Player data changed:", snapshot.val());
+        //fetchSortedUsers();
+      });
       //fetchSortedUsers();
     </script>
 

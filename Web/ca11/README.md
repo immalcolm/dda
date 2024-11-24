@@ -1,5 +1,8 @@
 # CA 11
 
+## Note
+- Remember to setup indexes if you are using Firebase orderBy
+- Remember to import necessary functions
 
 ## References
 Firebase Authentication password policies support the following password requirements:
