@@ -13,7 +13,12 @@
 - E.g DDAWk06-16012010D-UncleRoger-firebase.zip
 - Submit the file in Brightspace
 
-## References
+## Reading Reference
+- [How to Read and Write using Web](https://firebase.google.com/docs/database/web/read-and-write)
+  
+## JS Lib References
 - https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js
 - https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js
-- [How to Read and Write using Web](https://firebase.google.com/docs/database/web/read-and-write)
+- https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js
+
+

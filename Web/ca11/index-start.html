@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CA 11: Create Auth Players and Manage RealTime DB</title>
+
+    <script type="module">
+      //@TODO setup your own firebase config file
+      import { FIREBASE_CONFIG } from "../firebase-config.js";
+
+      //firebase skeleton setup
+      //all versions must be the same
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+
+      //import the key functions that are to be used for firebase realtime db. ensure the versions are the same
+      import {
+        getDatabase,
+        ref,
+        child,
+        get,
+        set,
+        push,
+        query,
+        orderByChild,
+      } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+      //for auth
+      import {
+        //determine which services you want to use
+        getAuth,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+      // Initialize Firebase
+      const app = initializeApp(FIREBASE_CONFIG);
+      const PLAYERS_NODE = "players";
+
+      //get a reference to the database service
+      const DB = getDatabase();
+      const PLAYER_REF = ref(DB, PLAYERS_NODE);
+      //Working with Auth
+      const auth = getAuth();
+
+      //@TODO start coding here
+      //initialize the button with an event listener
+      document
+        .getElementById("btn-get-player-data")
+        .addEventListener("click", getPlayerData);
+
+      //initialize create auth player btn with an event listener
+      //pass the event to the function
+      document
+        .getElementById("btn-create-player-auth")
+        .addEventListener("click", createPlayerUsingAuth);
+
+      //initialize create player btn with an event listener
+      //pass the event to the function
+      document
+        .getElementById("btn-create-player")
+        .addEventListener("click", createPlayer);
+
+      //create a function to get player data
+      //@TODO sample getPlayerData
+      function getPlayerData() {
+        //get the data from the database
+        get(PLAYER_REF).then((snapshot) => {
+          if (snapshot.exists()) {
+            document.getElementById("player-total").innerHTML = snapshot.size;
+
+            let data = snapshot.val();
+            let playerData = "";
+            //using foreach
+            snapshot.forEach((child) => {
+              let player = child.val();
+              //$child.key is the key of the child (player)
+              playerData += `
+                    <tr>
+                    <td>${child.key}</td>
+                    <td>${player.status}</td>
+                    <td>${player.displayName}</td>
+                    <td>${player.email}</td>
+                    <td>${player.highScore}</td>
+                    <td>${player.lastLoggedIn}</td>
+                    <td>${player.createdOn}</td>
+                    <td>${player.updatedOn}</td>
+                    </tr>
+                `;
+            });
+            //using for loop
+            /*
+            for (let key in data) {
+                let player = data[key];
+                playerData += `
+                    <tr>
+                        
+                    <td>${player.status}</td>
+                    <td>${player.displayName}</td>
+                    <td>${player.email}</td>
+                    <td>${player.highScore}</td>
+                    <td>${player.lastLoggedIn}</td>
+                    <td>${player.createdOn}</td>
+                    <td>${player.updatedOn}</td>
+                    </tr>
+                `;
+            }*/
+            //display the total number of players
+
+            //display the data, we target the table body
+            document.getElementById("player-data").innerHTML = playerData;
+            let alertMsg = "Player data retreived successfully";
+
+            document.getElementById("msg-container").style.display = "block";
+
+            document.getElementById("msg-container").innerHTML = `
+            <div class="col">
+                <div id="msg" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span id="alert-msg">${alertMsg}</span>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+                </div>
+            </div>`;
+
+            document.getElementById("player-data-container").style.display =
+              "block";
+          } else {
+            let alertMsg = "No data available";
+            //reset all existing class of msg
+            document.getElementById("msg-container").innerHTML = `
+            <div class="col">
+                <div id="msg" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span id="alert-msg">${alertMsg}</span>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+                </div>
+            </div>`;
+            document.getElementById("msg-container").style.display = "block";
+
+            //hide the table
+            document.getElementById("player-data-container").style.display =
+              "none";
+          }
+        });
+      }
+
+      //create a function to create a player using auth
+      function createPlayerUsingAuth(e) {
+        e.preventDefault();
+        //get the email and password
+        let email = document.getElementById("txt-player-email").value;
+        let password = document.getElementById("txt-player-password").value;
+
+        //create the player
+        //@TODO ensure the email and password are not empty
+        //ensure the password is at least 6 characters
+        //ensure the email is valid
+        createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            //@TODO signin and display
+          })
+          .catch((error) => {
+            //@TODO display the error message
+          });
+      }
+
+      function createPlayer(e) {
+        e.preventDefault();
+        //get the player details
+        let displayName = document.getElementById("txt-display-name").value;
+        let email = document.getElementById("txt-email").value;
+        let highScore = document.getElementById("txt-high-score").value;
+
+        const timestamp = Date.now();
+        //@TODO create the player object
+        let player = {
+        
+        };
+
+        //save the player object to the database
+        //set the player object to the database
+        //push(ref(<databaseref>, <path>)) --> generate a key at target location
+        const key = push(ref(DB, "players")).key; // Generate key
+
+        //set(ref(<databaseref>, <path>), <data>)) --> set the data at target location
+        set(ref(DB, `players/${key}`), player)
+          .then(() => {
+           
+          })
+          .catch((error) => {
+          });
+           
+      }
+
+      // Query to sort by lastLogin
+      async function fetchSortedUsers() {
+        const usersRef = ref(DB, "players"); // Reference to the "users" node
+        const sortedQuery = query(usersRef, orderByChild("displayName")); // Sort by "lastLogin"
+
+        try {
+          
+        } catch (error) {
+          console.error("Error fetching sorted data:", error);
+        }
+      }
+      //fetchSortedUsers();
+    </script>
+
+    <!-- using bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <!-- bootstrap icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+  </head>
+  <body>
+    <!-- @TODO Insert HTML UI -->
+    <div class="container">
+      <div class="row" id="auth-msg-container" style="display: none">
+        <div class="col">
+          <!-- @TODO you can use this to place any alerts -->
+          <div id="auth-msg" class="alert alert-primary" role="alert">
+            <span id="auth-alert-msg"></span>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+              aria-label="Close"
+            ></button>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <form>
+            <h3>Create Auth Player</h3>
+            <div class="mb-3">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Player Email"
+                id="txt-player-email"
+              />
+            </div>
+            <div class="mb-3">
+              <input
+                type="password"
+                class="form-control"
+                placeholder="Password"
+                id="txt-player-password"
+              />
+            </div>
+            <button class="btn btn-success btn-sm" id="btn-create-player-auth">
+              <i class="bi bi-person-add"></i> Create an Auth Player
+            </button>
+            <button
+              class="btn btn-secondary btn-sm"
+              id="btn-signin-player-auth"
+            >
+              <i class="bi bi-box-arrow-in-right"></i> Sign In
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <hr />
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col">
+          <h1>
+            Player Data
+            <span id="btn-get-player-data" class="btn btn-primary btn-sm"
+              ><i class="bi bi-people"></i> Get Player Data</span>
+            <span id="btn-get-sorted-player-data" class="btn btn-primary btn-sm"
+              ><i class="bi bi-people"></i> Get Sorted Player Data</span
+            >
+          </h1>
+        </div>
+      </div>
+      <div class="row" id="msg-container" style="display: none">
+        <div class="col">
+          <!-- @TODO you can use this to place any alerts -->
+          <div id="msg" class="alert" role="alert">
+            <span id="alert-msg"></span>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+              aria-label="Close"
+            ></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" id="player-data-container">
+        <div class="row">
+          <div class="col-9">
+            <h3>Total players: <span id="player-total"></span></h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Display Name</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">High Score</th>
+                  <th scope="col">Last Logged In</th>
+                  <th scope="col">Created On</th>
+                  <th scope="col">Updated On</th>
+                </tr>
+              </thead>
+              <!-- data dump comes here -->
+              <tbody id="player-data"></tbody>
+            </table>
+          </div>
+          <div class="col-3">
+            <h3>Player Registration</h3>
+            <form>
+              <div class="mb-3">
+                <input
+                  type="text"
+                  id="txt-display-name"
+                  class="form-control"
+                  placeholder="Player Display Name"
+                />
+              </div>
+              <div class="mb-3">
+                <input
+                  type="email"
+                  id="txt-email"
+                  class="form-control"
+                  placeholder="Player Email"
+                />
+              </div>
+              <div class="mb-3">
+                <input
+                  type="text"
+                  id="txt-high-score"
+                  class="form-control"
+                  placeholder="Player High Score"
+                />
+              </div>
+              <button class="btn btn-primary btn-sm" id="btn-create-player">
+                Create Player
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- bootstrap interactivity script -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

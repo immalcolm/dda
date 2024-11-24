@@ -10,16 +10,20 @@
     3. Initialize the firebase app
     4. Create a reference to the database
     5. Create a reference to the authentication
+     6. Add event listener to the get player data button
+    7. Get the player data from the database using the get function upon button click
     -->
     <script type="module">
       // Import the functions you need from the SDKs you need
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+      
       //import the key functions that are to be used for firebase realtime db. ensure the versions are the same
       import {
         getDatabase,
         ref,
         child,
         get,
+        set
       } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
       // TODO: Add SDKs for Firebase products that you want to use
       // https://firebase.google.com/docs/web/setup#available-libraries
@@ -35,10 +39,9 @@
       const playerRef = child(dbRef, "players");
 
       //@TODO
-      
+
       function getPlayerData() {
         //get the data from the database
-        
       }
 
       document

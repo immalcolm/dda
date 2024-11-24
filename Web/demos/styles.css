@@ -1,0 +1,24 @@
+*,body{
+    font-family: Arial, sans-serif;
+}
+
+/*-- select by tag */
+h1,h2,h3,h4,h5,h6{
+    color: #333;
+    margin:0;
+}
+
+/*-- select by class */
+.container{
+    width:80%;
+}
+.red{
+    color:red;
+}
+
+/*-- select by id */
+#footer{
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+}

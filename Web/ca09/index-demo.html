@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <table>
+      <tbody id="player-data">
+
+      </tbody>
+    </table>
+
+    <!-- firebase code-->
+    <script type="module">
+        //@TODO
+        //1. import firebase libaries 
+        //2. initialize our firebase 
+        //3. initialize our database
+        //4. create a reference to the database
+        //5. create a function to get player data
+        //6. get snapshot of player data
+        //7. check if have data
+        //8. loop through data 
+        //9. call the function to get player data
+      //similar to google-services.json
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        get,
+        child,
+      } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDbdE3XqOaNdMcp0ZDi1FT2KJEjMErDxK8",
+        authDomain: "dda-2024-dede6.firebaseapp.com",
+        databaseURL:
+          "https://dda-2024-dede6-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "dda-2024-dede6",
+        storageBucket: "dda-2024-dede6.firebasestorage.app",
+        messagingSenderId: "704849767314",
+        appId: "1:704849767314:web:bb8e3d5009e70a586b6f4b",
+      };
+
+      //2. Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+
+      //3. initialize database
+      // Set the configuration for your app
+      const db = getDatabase();
+
+      //4. create reference 
+      const dbRef = ref(db);
+      const dbPlayerRef = child(dbRef, "players");
+      //const dbPlayerRef = child(db, "players"); //which node we want to start
+
+      //5. read the players from the player node
+      function getPlayersData() {
+        //get the data from whichever reference point in the db we assign
+        //here we reference from "/root/players"
+        //remember to import 'get' at the start of the js 
+        //6. get snapshot of player data
+        get(dbPlayerRef).then((snapshot) => {
+            //print snapshot or process the snapshot
+            //7. check if have data
+            if(snapshot.exists()){
+                console.log(snapshot.val());
+                const data = snapshot.val();
+
+                let playerInfo = "";
+                //for each key
+                //8. loop through data
+                for(let playerKey in data){ 
+                    console.log("playerKey" + playerKey);
+                    const p = data[playerKey];
+                    console.log(`Player Details: 
+                        Display Name: ${p.displayName} 
+                        Email: ${p.email}
+                        `
+                    )
+                    playerInfo += `
+                        <tr>
+                            <td>${p.displayName}</td>
+                            <td>${p.email}</td>
+                        </tr>
+                    `
+                    //console.log(p.key);//retrieve the key 
+                }//end of loop 
+
+                document.getElementById("player-data").innerHTML = playerInfo;  
+            }else{
+                console.log("No player data at all!!!!")
+            }
+        });
+      } //end
+      //9. call the function to get player data
+      getPlayersData();
+    </script>
+  </body>
+</html>
