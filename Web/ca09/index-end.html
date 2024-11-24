@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DDA CA 9</title>
+    <!-- 
+    1. Import the firebase libraries
+    2. Place the firebase configuration code
+    3. Initialize the firebase app, database, authentication
+    4. Create a reference to the database
+    5. Create a reference to the authentication
+    6. Add event listener to the get player data button
+    7. Get the player data from the database using the get function upon button click
+    8. Add event listener to the create player button
+    9. Create a new player using the create user with email and password function
+    10. Now let's create the player (realtime db) when the auth player(auth) is created
+
+    -->
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h2>Player Data <span id="player-total"></span></h2>
+    <div class="table-wrapper">
+      <button id="btn-get-player-data" style="margin-bottom: 1em">
+        🎮 Get Player Data
+      </button>
+      <table class="fl-table">
+        <thead>
+          <th>#</th>
+          <th>Player ID</th>
+          <th>Display Name</th>
+          <th>Email</th>
+        </thead>
+        <tbody id="player-data"></tbody>
+      </table>
+    </div>
+    <div id="errorMsg"></div>
+
+    <hr />
+
+    <div class="simple-wrapper">
+      <h2>Player Registration</h2>
+      <form id="player-registration-form">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required />
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required />
+        <button id="btn-create-player-auth">Create Player via Auth</button>
+      </form>
+    </div>
+
+    <div class="" id="current-user" style="display: none">
+      <h2>Current User: <span id="current-user-email"></span></h2>
+      <p id="current-user-info"></p>
+
+      <!-- @TODO let's hide this long table first -->
+      <div class="table-wrapper" style="display: none">
+        <table class="fl-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody id="user-auth-details"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="sign-out" style="display: none">
+      <button id="btn-sign-out">Sign Out</button>
+    </div>
+
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        child,
+        get,
+        set,
+      } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+      import {
+        //determine which services you want to use
+        getAuth,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+      import { FIREBASE_CONFIG } from "../firebase-config.js";
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDbdE3XqOaNdMcp0ZDi1FT2KJEjMErDxK8",
+        authDomain: "dda-2024-dede6.firebaseapp.com",
+        databaseURL:
+          "https://dda-2024-dede6-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "dda-2024-dede6",
+        storageBucket: "dda-2024-dede6.firebasestorage.app",
+        messagingSenderId: "704849767314",
+        appId: "1:704849767314:web:bb8e3d5009e70a586b6f4b",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+
+      const db = getDatabase(app);
+      const dbRef = ref(db);
+      const playerRef = child(dbRef, "players");
+      const auth = getAuth();
+
+      //add event listener to the button
+      document
+        .getElementById("btn-get-player-data")
+        .addEventListener("click", getPlayerData);
+
+      document
+        .getElementById("btn-create-player-auth")
+        .addEventListener("click", createPlayerUsingAuth);
+
+      document.getElementById("btn-sign-out").addEventListener("click", () => {
+        signOut(auth)
+          .then(() => {
+            console.log("User signed out");
+            document.getElementById("current-user").style.display = "none";
+            document.getElementById("sign-out").style.display = "none";
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      });
+
+      //get the data from the database
+      function getPlayerData() {
+        try {
+          get(playerRef)
+            .then((snapshot) => {
+              if (snapshot.exists()) {
+                console.log(snapshot.val());
+                const data = snapshot.val();
+                const playerData = document.getElementById("player-data");
+                let info = "";
+                let playerCounter = 0;
+                document.getElementById("player-total").innerHTML = `(${
+                  Object.keys(data).length
+                })`;
+                for (let playerId in data) {
+                  playerCounter++;
+                  const player = data[playerId];
+                  info += `<tr>
+                          <td>${playerCounter}</td>
+                          <td>${playerId}</td>
+                          <td>${player.displayName}</td>
+                          <td>${player.email}</td>
+                          </tr>`;
+                }
+                //update the html content
+                playerData.innerHTML = info;
+              } else {
+                console.log("No data available");
+                document.getElementById("errorMsg").innerHTML =
+                  "No data available";
+              }
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      function createPlayerUsingAuth(event) {
+        event.preventDefault();
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        console.log("creating new user");
+        createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            // Signed in
+            const user = userCredential.user;
+            document.getElementById("current-user").style.display = "block";
+            document.getElementById("current-user-email").innerHTML =
+              user.email;
+            //document.getElementById("current-user-info").innerHTML =
+            //  JSON.stringify(user);
+            console.log(user);
+            createPlayer(user.uid, user.email, user.email);
+
+            //display the user details
+            displayUserAuthDetails(user);
+            getPlayerData();
+            document.getElementById("sign-out").style.display = "block";
+            // ...
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(`ErrorCode: ${errorCode} -> Message: ${errorMessage}`);
+            // ..
+          });
+      }
+
+      function displayUserAuthDetails(responseObj) {
+        let tableHtml = "";
+
+        for (let key in responseObj) {
+          if (responseObj.hasOwnProperty(key)) {
+            tableHtml += `
+            <tr>
+              <td>${key}</td>
+              <td>${responseObj[key]}</td>
+            </tr>
+          `;
+          }
+        }
+
+        document.getElementById("user-auth-details").innerHTML = tableHtml;
+      }
+
+      //create a new player object
+      //save the player object to the database
+      async function createPlayer(playerId, displayName, email) {
+        //create a new player object
+        const player = {
+          displayName: displayName,
+          email: email,
+        };
+        //save the player object to the database
+        //set the player object to the database
+        //dbref.child(`players`).child(id).set(player);
+        await set(ref(db, `players/${playerId}`), player)
+          .then(() => {
+            console.log("Player created successfully");
+          })
+          .catch((error) => {
+            console.error("Error creating player: ", error);
+          });
+      }
+    </script>
+  </body>
+</html>
