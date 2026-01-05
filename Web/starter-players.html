@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+
+      //firebase initializer script (SDK)
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+      //firebase database script (SDK )
+      import {
+        getDatabase,
+        ref,
+        child,
+        get,
+        set,
+      } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCTLu-ey2u6LkIGcnttLu_FmAi8BcL0M70",
+        authDomain: "dda-2025.firebaseapp.com",
+        databaseURL:
+          "https://dda-2025-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "dda-2025",
+        storageBucket: "dda-2025.firebasestorage.app",
+        messagingSenderId: "304197976123",
+        appId: "1:304197976123:web:a274b2d69ac237dd461c1e",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+
+      const db = getDatabase(app);
+      const players = ref(db, "players");
+
+      function getPlayerData() {
+        get(players).then((snapshot) => {
+          if (snapshot.exists()) {
+            try {
+              snapshot.forEach((child) => {
+                console.log(child.key);
+              });
+            } catch (error) {
+              console.log(error);
+            }
+          }
+        });
+      }
+
+      getPlayerData();
+    </script>
+  </head>
+  <body></body>
+</html>

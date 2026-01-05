@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Simple Firebase Storage Upload</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 720px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      .row {
+        margin: 0.75rem 0;
+      }
+      progress {
+        width: 100%;
+        height: 1rem;
+      }
+      .preview {
+        margin-top: 0.5rem;
+      }
+      video,
+      img,
+      audio {
+        max-width: 100%;
+        display: block;
+        margin-top: 0.5rem;
+      }
+      .status {
+        font-weight: 600;
+        margin-top: 0.5rem;
+      }
+      .config {
+        font-size: 0.9rem;
+        color: #444;
+        background: #f7f7f7;
+        padding: 0.5rem;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Upload media to Firebase Storage</h1>
+
+    <!-- Project settings / Firebase config -->
+    <div class="row config" id="projectSettings">
+      <!-- Paste your Firebase config object below in the script section.
+                 Example structure:
+                 const firebaseConfig = {
+                     apiKey: "...",
+                     authDomain: "...",
+                     projectId: "...",
+                     storageBucket: "PROJECT_ID.appspot.com",
+                     messagingSenderId: "...",
+                     appId: "..."
+                 };
+        -->
+      Firebase project settings: paste your firebaseConfig in the script.
+    </div>
+
+    <!-- Upload form -->
+    <div class="row">
+      <label>Select media (image/video/audio):</label>
+      <input type="file" id="fileInput" accept="image/*,video/*,audio/*" />
+    </div>
+
+    <div class="row">
+      <button id="uploadBtn" disabled>Upload to Storage</button>
+    </div>
+
+    <div class="row">
+      <progress
+        id="progress"
+        value="0"
+        max="100"
+        style="display: none"
+      ></progress>
+      <div class="status" id="status">No upload yet.</div>
+    </div>
+
+    <div class="row preview" id="preview"></div>
+    <div class="row" id="downloadLink"></div>
+
+    <script type="module">
+      // Import Firebase modular SDK (adjust version if desired)
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+      import {
+        getStorage,
+        ref,
+        uploadBytesResumable,
+        getDownloadURL,
+      } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-storage.js";
+
+      // TODO: Paste your Firebase config object here
+      const firebaseConfig = {
+        apiKey: "AIzaSyCTLu-ey2u6LkIGcnttLu_FmAi8BcL0M70",
+        authDomain: "dda-2025.firebaseapp.com",
+        databaseURL:
+          "https://dda-2025-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "dda-2025",
+        storageBucket: "dda-2025.firebasestorage.app",
+        messagingSenderId: "304197976123",
+        appId: "1:304197976123:web:a274b2d69ac237dd461c1e",
+      };
+
+      // Initialize Firebase app (will fail if config is empty)
+      const app = initializeApp(firebaseConfig);
+      const storage = getStorage(app);
+
+      const fileInput = document.getElementById("fileInput");
+      const uploadBtn = document.getElementById("uploadBtn");
+      const progressEl = document.getElementById("progress");
+      const statusEl = document.getElementById("status");
+      const previewEl = document.getElementById("preview");
+      const downloadLinkEl = document.getElementById("downloadLink");
+
+      let selectedFile = null;
+
+      fileInput.addEventListener("change", (e) => {
+        selectedFile = e.target.files[0] || null;
+        previewEl.innerHTML = "";
+        downloadLinkEl.innerHTML = "";
+        if (selectedFile) {
+          uploadBtn.disabled = false;
+          statusEl.textContent = `Ready to upload: ${
+            selectedFile.name
+          } (${Math.round(selectedFile.size / 1024)} KB)`;
+          previewFile(selectedFile);
+        } else {
+          uploadBtn.disabled = true;
+          statusEl.textContent = "No file selected.";
+        }
+      });
+
+      uploadBtn.addEventListener("click", () => {
+        if (!selectedFile) return;
+        uploadBtn.disabled = true;
+        fileInput.disabled = true;
+        progressEl.style.display = "block";
+        progressEl.value = 0;
+        statusEl.textContent = "Starting upload...";
+
+        // Create a unique path: uploads/<timestamp>_<name>
+        const path = `uploads/${Date.now()}_${sanitizeName(selectedFile.name)}`;
+        const storageRef = ref(storage, path);
+
+        const uploadTask = uploadBytesResumable(storageRef, selectedFile, {
+          contentType: selectedFile.type,
+        });
+
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const percent =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            progressEl.value = percent;
+            statusEl.textContent = `Uploading: ${Math.round(percent)}%`;
+          },
+          (error) => {
+            console.error("Upload failed", error);
+            statusEl.textContent = `Upload failed: ${error.message || error}`;
+            uploadBtn.disabled = false;
+            fileInput.disabled = false;
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              statusEl.textContent = "Upload complete.";
+              progressEl.value = 100;
+              downloadLinkEl.innerHTML = `<div>Download URL: <a href="${downloadURL}" target="_blank" rel="noopener">${downloadURL}</a></div>`;
+              // Optionally display embedded preview of uploaded file
+              embedRemotePreview(downloadURL, selectedFile.type);
+              uploadBtn.disabled = false;
+              fileInput.disabled = false;
+            });
+          }
+        );
+      });
+
+      function previewFile(file) {
+        const type = file.type || "";
+        if (type.startsWith("image/")) {
+          const img = document.createElement("img");
+          img.src = URL.createObjectURL(file);
+          previewEl.appendChild(img);
+        } else if (type.startsWith("video/")) {
+          const v = document.createElement("video");
+          v.controls = true;
+          v.src = URL.createObjectURL(file);
+          previewEl.appendChild(v);
+        } else if (type.startsWith("audio/")) {
+          const a = document.createElement("audio");
+          a.controls = true;
+          a.src = URL.createObjectURL(file);
+          previewEl.appendChild(a);
+        } else {
+          previewEl.textContent = "Selected file preview not available.";
+        }
+      }
+
+      function embedRemotePreview(url, mime) {
+        const type = mime || "";
+        const wrapper = document.createElement("div");
+        wrapper.style.marginTop = ".5rem";
+        if (type.startsWith("image/")) {
+          const img = document.createElement("img");
+          img.src = url;
+          wrapper.appendChild(img);
+        } else if (type.startsWith("video/")) {
+          const v = document.createElement("video");
+          v.controls = true;
+          v.src = url;
+          wrapper.appendChild(v);
+        } else if (type.startsWith("audio/")) {
+          const a = document.createElement("audio");
+          a.controls = true;
+          a.src = url;
+          wrapper.appendChild(a);
+        } else {
+          const a = document.createElement("a");
+          a.href = url;
+          a.target = "_blank";
+          a.textContent = "Open uploaded file";
+          wrapper.appendChild(a);
+        }
+        downloadLinkEl.appendChild(wrapper);
+      }
+
+      function sanitizeName(name) {
+        return name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Dashboarding with Firebase</title>
+</head>
+<body>
+    <h1>Simple Dashboarding with Firebase</h1>
+    <h2>Daily Active Users</h2>
+    <div style="display: block;"><canvas id="my-chart"></canvas></div>
+
+    <!-- put in chart.js first -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module">
+        import { FIREBASE_CONFIG } from './config.js';
+
+        //we are running the code in module mode
+        //this taps on the CDN version of the firebase SDK
+        //for firebase app
+        import {
+            //determine which services you want to use
+            initializeApp
+        } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js';
+
+        //for realtime database
+        import {
+            //determine which services you want to use
+            getDatabase, ref, set, get, onValue, push, child, update, remove,
+        } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js';
+
+        //for auth
+        import {
+            //determine which services you want to use
+            getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut
+        } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js';
+
+        const app = initializeApp(FIREBASE_CONFIG);
+
+        //get a reference to the database service
+        const db = getDatabase();
+        //Working with Auth
+        const auth = getAuth();
+
+        //[STEP 2] Setup our node/path reference (DAU)
+        //=================================================
+        const dailyActiveUsersRef = ref(db, "dailyActiveUsers");
+
+        //let's monitor the DAU node for any changes
+        onValue(dailyActiveUsersRef, (snapshot) => {
+            const newData = snapshot.val();
+            console.log("data changes:", newData);
+            // Handle the new data (e.g., update the UI)
+            getDailyActiveUsers();
+        });
+
+        getDailyActiveUsers();
+
+        //make our chart and initialize it
+        const ctx = document.getElementById("my-chart").getContext("2d");
+        const myChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: [],//xaxis
+                datasets: [
+                    {
+                        label: "# of Active Users",
+                        data: [], //yaxis
+                        borderWidth: 0.4,
+                        borderColor: "#8e5ea2",
+                        backgroundColor: "rgb(142, 94, 162, 0.2)",
+                        tension: 0,
+                        fill: true,
+                        borderWidth: 3
+                    },
+                ],
+            },
+            options: {
+                /*animations: {
+                    tension: {
+                        duration: 3000,
+                        easing: 'easeOutCubic',
+                        from: 1,
+                        to: 0.4,
+                        loop: false
+                    }
+                },*/
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                        }
+                    }
+                }
+            },
+
+        });
+
+        //set the size of the chart
+        myChart.canvas.parentNode.style.height = '800px';
+        myChart.canvas.parentNode.style.width = '800px';
+
+        //get the player data from playerRef using get
+        function getDailyActiveUsers() {
+            console.log("getting daily active users")
+            //[STEP 3] Retrieve our data
+            //=================================================
+            get(dailyActiveUsersRef).then(snapshot => {
+                //retrieve a snapshot of the data using a callback
+                if (snapshot.exists()) {
+                    //if the data exist
+                    try {
+                        var content = "";
+                        //setup our temp arrays
+                        var dates = [];
+                        var logs = [];
+                        console.log("snapshot exists")
+                        snapshot.forEach((childSnapshot) => {
+                            //push data to our arrays for our X/Y axes later
+                            dates.push(childSnapshot.key);
+                            logs.push(childSnapshot.size);
+                            console.log(`Date ${childSnapshot.key}: ${childSnapshot.size}`);
+                        });
+                        //update our chart
+                        updateChart(dates, logs);
+                    } catch (error) {
+                        console.log(error);
+                    }
+                } else {
+                    console.log("snapshot does not exist")
+                }
+            }); //end get
+        }//end of getDailyActiveUsers
+
+        //[STEP 4] Update our chart
+        //=================================================
+        function updateChart(label, newData) {
+            myChart.data.labels = label;
+            myChart.data.datasets[0].data = newData;
+
+            //UI update chart
+            myChart.update();
+        }
+
+    </script>
+</body>
+
+</html>

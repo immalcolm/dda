@@ -1,5 +1,14 @@
 .env
 config.js
+**/Web/AdminLTE-3.2.0/
+**/faces/
+**/fonts/
+**/node_modules/
+**/scss/
+**/vendors/
+
+.env
+config.js
 firebase_config.js
 
 
