@@ -73,15 +73,15 @@
     </div>
 
     <script type="module">
-      // Import the functions you need from the SDKs you need
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
       import {
         getDatabase,
         ref,
         child,
         get,
         set,
-      } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+      } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-database.js";
       import {
         //determine which services you want to use
         getAuth,
@@ -89,20 +89,19 @@
         signInWithEmailAndPassword,
         onAuthStateChanged,
         signOut,
-      } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+      } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 
-      import { FIREBASE_CONFIG } from "../firebase-config.js";
       // Your web app's Firebase configuration
-      const firebaseConfig = {
-        apiKey: "AIzaSyDbdE3XqOaNdMcp0ZDi1FT2KJEjMErDxK8",
-        authDomain: "dda-2024-dede6.firebaseapp.com",
-        databaseURL:
-          "https://dda-2024-dede6-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "dda-2024-dede6",
-        storageBucket: "dda-2024-dede6.firebasestorage.app",
-        messagingSenderId: "704849767314",
-        appId: "1:704849767314:web:bb8e3d5009e70a586b6f4b",
-      };
+     // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBBIehTuQhZGWD04t59ofVpXgBhAhrwhEQ",
+      authDomain: "dda-2026.firebaseapp.com",
+      databaseURL: "https://dda-2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "dda-2026",
+      storageBucket: "dda-2026.firebasestorage.app",
+      messagingSenderId: "383324539954",
+      appId: "1:383324539954:web:ae028ec0b1f2170dbc002b"
+    };
 
       // Initialize Firebase
       const app = initializeApp(firebaseConfig);
